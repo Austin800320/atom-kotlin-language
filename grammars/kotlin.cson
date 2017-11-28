@@ -211,6 +211,8 @@
           beginCaptures:
             1:
               name: "keyword.other.kotlin"
+            2:
+              name: "keyword.other.kotlin"
           end: "(?=<|{|\\(|:)"
           patterns: [
             {
