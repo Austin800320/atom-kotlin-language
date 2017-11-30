@@ -6,9 +6,7 @@
     "kts"
   ]
   patterns: [
-    {
-      include: "#comments"
-    }
+    {include: "#comments"}
     {
       captures:
         1:
@@ -19,37 +17,20 @@
 
       match: "^\\s*(package)\\b(?:\\s*([^ ;$]+)\\s*)?"
     }
-    {
-      include: "#imports"
-    }
-    {
-      include: "#statements"
-    }
+    {include: "#imports"}
+    {include: "#statements"}
   ]
   repository:
     statements:
       patterns: [
-        {
-          include: "#namespaces"
-        }
-        {
-          include: "#typedefs"
-        }
-        {
-          include: "#classes"
-        }
-        {
-          include: "#functions"
-        }
-        {
-          include: "#variables"
-        }
-        {
-          include: "#getters-and-setters"
-        }
-        {
-          include: "#expressions"
-        }
+        {include: "#namespaces"}
+        {include: "#typedefs"}
+        {include: "#classes"}
+        {include: "#functions"}
+        {include: "#variables"}
+        {include: "#getters-and-setters"}
+        {include: "#expressions"}
+        {include: "#functions-call"}
       ]
 
     comments:
@@ -59,19 +40,15 @@
           captures:
             0:
               name: "punctuation.definition.comment.kotlin"
-
           end: "\\*/"
           name: "comment.block.kotlin"
-          patterns: [include: "#comments"]
         }
         {
           captures:
             1:
               name: "comment.line.double-slash.kotlin"
-
             2:
               name: "punctuation.definition.comment.kotlin"
-
           match: "\\s*((//).*$\\n?)"
         }
       ]
@@ -81,11 +58,13 @@
         captures:
           1:
             name: "keyword.other.kotlin"
-
           2:
+            name: "entity.name.package.kotlin"
+          3:
             name: "keyword.other.kotlin"
-
-        match: "^\\s*(import)\\s+[^ $]+\\s+(as)?"
+          4:
+            name: "entity.name.type.class.kotlin"
+        match: "^\\s*(import)\\s+([^ $]+)\\s*(as)?\\s+([^ $]+)?"
       ]
 
     namespaces:
@@ -100,12 +79,11 @@
           patterns: [include: "#statements"]
         }
       ]
-
     types:
       patterns: [
         {
           match: "\\b(Any|Unit|String|Int|Boolean|Char|Long|Double|Float|Short|Byte|dynamic)\\b"
-          name: "storage.type.buildin.kotlin"
+          name: "storage.type.kotlin"
         }
         {
           match: "\\b(IntArray|BooleanArray|CharArray|LongArray|DoubleArray|FloatArray|ShortArray|ByteArray)\\b"
@@ -119,24 +97,16 @@
 
           end: ">"
           patterns: [
-            {
-              include: "#types"
-            }
-            {
-              include: "#keywords"
-            }
+            {include: "#types"}
+            {include: "#keywords"}
           ]
         }
         {
           begin: "\\w+<"
           end: ">"
           patterns: [
-            {
-              include: "#types"
-            }
-            {
-              include: "#keywords"
-            }
+            {include: "#types"}
+            {include: "#keywords"}
           ]
         }
         {
@@ -175,9 +145,7 @@
           end: "(?=,|>)"
           patterns: [include: "#types"]
         }
-        {
-          include: "#keywords"
-        }
+        {include: "#keywords"}
         {
           match: "\\w+"
           name: "storage.type.generic.kotlin"
@@ -210,6 +178,8 @@
           begin: "\\b(companion\\s*)?(class|object|interface)\\b"
           beginCaptures:
             1:
+              name: "keyword.other.kotlin"
+            2:
               name: "keyword.other.kotlin"
           end: "(?=<|{|\\(|:)"
           patterns: [
@@ -258,7 +228,32 @@
           patterns: [include: "#statements"]
         }
       ]
+    parameters:
+      patterns: [
+        {
+          begin: "(:)"
+          beginCaptures:
+            1:
+              name: "keyword.operator.declaration.kotlin"
+          end: "(?=,|\\)|=)"
+          patterns: [include: "#types"]
+        }
+        {
+          begin: "(=)"
+          beginCaptures:
+            1:
+              name: "keyword.operator.declaration.kotlin"
 
+          end: "(?=,|\\))"
+          patterns: [include: "#expressions"]
+        }
+        {include: "#keywords"}
+        {
+          match: "\\w+"
+          name: "entity.name.variable.kotlin"
+        }
+        {include: "#variables"}
+      ]
     variables:
       begin: "(?=\\s*(?:var|val))"
       end: "(?=:|=|$)"
@@ -268,7 +263,6 @@
           beginCaptures:
             1:
               name: "keyword.other.kotlin"
-
           end: "(?=:|=|$)"
           patterns: [
             {
@@ -280,7 +274,6 @@
               captures:
                 2:
                   name: "entity.name.variable.kotlin"
-
               match: "([\\.<\\?>\\w]+\\.)?(\\w+)"
             }
           ]
@@ -293,12 +286,8 @@
 
           end: "(?==|$)"
           patterns: [
-            {
-              include: "#types"
-            }
-            {
-              include: "#getters-and-setters"
-            }
+            {include: "#types"}
+            {include: "#getters-and-setters"}
           ]
         }
         {
@@ -309,12 +298,8 @@
 
           end: "(?=$)"
           patterns: [
-            {
-              include: "#expressions"
-            }
-            {
-              include: "#getters-and-setters"
-            }
+            {include: "#expressions"}
+            {include: "#getters-and-setters"}
           ]
         }
       ]
@@ -419,7 +404,9 @@
         {
           begin: "\\{"
           end: "(?=\\})"
-          patterns: [include: "#statements"]
+          patterns: [
+            {include: "#statements"}
+          ]
         }
         {
           begin: "(=)"
@@ -432,34 +419,28 @@
         }
       ]
 
-    parameters:
-      patterns: [
+    "functions-call":
+      patterns:[
         {
-          begin: "(:)"
-          beginCaptures:
+          match: "(\\b[a-z]\\w*\\s*)\\("
+          captures:
             1:
-              name: "keyword.operator.declaration.kotlin"
-
-          end: "(?=,|\\)|=)"
-          patterns: [include: "#types"]
+              name: "entity.name.function.call.kotlin"
         }
         {
-          begin: "(=)"
-          beginCaptures:
-            1:
-              name: "keyword.operator.declaration.kotlin"
-
-          end: "(?=,|\\))"
-          patterns: [include: "#expressions"]
-        }
-        {
-          include: "#keywords"
-        }
-        {
-          match: "\\w+"
-          name: "variable.parameter.function.kotlin"
+          begin: "\\("
+          end: "\\)"
+          patterns: [
+            {include:"#parameters"}
+            {include:"strings"}
+            {
+              match: "\\w+"
+              name: "entity.name.variable.kotlin"
+            }
+          ]
         }
       ]
+
 
     expressions:
       patterns: [
@@ -468,21 +449,11 @@
           end: "\\)"
           patterns: [include: "#expressions"]
         }
-        {
-          include: "#types"
-        }
-        {
-          include: "#strings"
-        }
-        {
-          include: "#constants"
-        }
-        {
-          include: "#comments"
-        }
-        {
-          include: "#keywords"
-        }
+        {include: "#types"}
+        {include: "#strings"}
+        {include: "#constants"}
+        {include: "#comments"}
+        {include: "#keywords"}
       ]
 
     strings:
